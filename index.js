@@ -63,7 +63,7 @@ const sendVerificationEmail = async (email, verificationToken, res) => {
         from: "FarmBuddy",
         to: email,
         subject: "Email Verification",
-        text: `Please click the following link to verify your email : http://192.168.43.129:8000/verify/${verificationToken}`
+        text: `Please click the following link to verify your email : https://farmbuddy-backend.onrender.com/verify/${verificationToken}`
     }
 
     try {
@@ -162,6 +162,25 @@ app.post("/addresses", async (req, res) => {
     } catch (error) {
         console.log("error",error)
         res.status(500).json({ message: "Error adding address" })
+    }
+})
+app.post("/editAddress", async (req, res) => {
+    try {
+        const { userId, address,addressIndex } = req.body;
+        console.log("add",addressIndex)
+        const user = await User.findById(userId)
+        if (!user) {
+            return res.status(404).json({ message: "User not found" })
+        }
+        
+        const addressArray = [...user.addresses.slice(0,addressIndex),{...user.addresses[addressIndex],...address},...user.addresses.slice(addressIndex+1)]
+        user.addresses = addressArray
+        await user.save();
+        console.log(addressArray)
+        res.status(200).json({ message: "Address edited successfully" })
+    } catch (error) {
+        console.log("error",error)
+        res.status(500).json({ message: "Error editing address" })
     }
 })
 //endpoint to get all the addresses of a particular user
