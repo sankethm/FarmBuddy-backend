@@ -167,7 +167,6 @@ app.post("/addresses", async (req, res) => {
 app.post("/editAddress", async (req, res) => {
     try {
         const { userId, address,addressIndex } = req.body;
-        console.log("add",addressIndex)
         const user = await User.findById(userId)
         if (!user) {
             return res.status(404).json({ message: "User not found" })
@@ -176,11 +175,27 @@ app.post("/editAddress", async (req, res) => {
         const addressArray = [...user.addresses.slice(0,addressIndex),{...user.addresses[addressIndex],...address},...user.addresses.slice(addressIndex+1)]
         user.addresses = addressArray
         await user.save();
-        console.log(addressArray)
         res.status(200).json({ message: "Address edited successfully" })
     } catch (error) {
         console.log("error",error)
         res.status(500).json({ message: "Error editing address" })
+    }
+})
+app.post("/deleteAddress", async (req, res) => {
+    try {
+        const { userId, addressIndex } = req.body;
+        const user = await User.findById(userId)
+        if (!user) {
+            return res.status(404).json({ message: "User not found" })
+        }
+        
+        const addressArray = user.addresses.filter((item,index)=>index!=addressIndex)
+        user.addresses = addressArray
+        await user.save();
+        res.status(200).json({ message: "Address deleted successfully" })
+    } catch (error) {
+        console.log("error",error)
+        res.status(500).json({ message: "Error deleting address" })
     }
 })
 //endpoint to get all the addresses of a particular user
@@ -307,7 +322,6 @@ app.get("/getAllProducts/:userId", async (req, res) => {
     try {
         const userId = req.params.userId;
         const products = await Product.find({user:userId})
-        console.log("...",products)
         res.status(200).json({ products });
     } catch (error) {
         res.status(500).json({ message: "Error retrieveing all products for the user" });
