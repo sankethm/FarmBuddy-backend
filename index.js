@@ -190,6 +190,7 @@ app.post("/deleteAddress", async (req, res) => {
         }
         
         const addressArray = user.addresses.filter((item,index)=>index!=addressIndex)
+        console.log("address",addressArray)
         user.addresses = addressArray
         await user.save();
         res.status(200).json({ message: "Address deleted successfully" })
